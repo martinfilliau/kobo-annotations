@@ -16,10 +16,13 @@ It will output a file at `/full/path/to/file.md`.
 
 - [ ] add tests
 - [ ] properly handle XML namespaces ?! (check [this conversation](https://stackoverflow.com/questions/50963890/xml-format-in-kobo-sqlite-database-for-bookmarks))
-- [x] move into modules
+- [x] separate into different files w/ own responsibility
 - [ ] handle lines return
 - [ ] add documentation (ADR, use cases...)
 - [ ] templatize output?
+- [ ] handle relative file path
 - [ ] customize output destination
 - [ ] (optionnally) use ebook to get highlight's context (e.g. nearest sub-title) ?
-- [~] ability to use as a library as well as a CLI? (i.e. decouple lib and CLI)
+- [ ] ability to use as a library as well as a CLI? (i.e. decouple lib and CLI) / [modules](https://doc.rust-lang.org/book/ch07-03-paths-for-referring-to-an-item-in-the-module-tree.html)
+- [ ] version
+- [ ] generalize [result pattern](https://doc.rust-lang.org/std/result/)
