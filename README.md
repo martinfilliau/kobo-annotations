@@ -14,8 +14,8 @@ It will output a file at `/full/path/to/file.md`.
 
 ## TODO
 
-- [ ] add tests
-- [ ] properly handle XML namespaces ?! (check [this conversation](https://stackoverflow.com/questions/50963890/xml-format-in-kobo-sqlite-database-for-bookmarks))
+- [x] add tests
+- [ ] properly handle XML [namespaces](https://docs.rs/quick-xml/latest/quick_xml/name/index.html) ?! (check [this conversation](https://stackoverflow.com/questions/50963890/xml-format-in-kobo-sqlite-database-for-bookmarks))
 - [x] separate into different files w/ own responsibility
 - [ ] handle lines return
 - [ ] add documentation (ADR, use cases...)
