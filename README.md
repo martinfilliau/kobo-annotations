@@ -12,6 +12,10 @@ Run `cargo run -- /full/path/to/file`
 
 It will output a file at `/full/path/to/file.md`.
 
+## Tests
+
+Run `cargo test`.
+
 ## TODO
 
 - [x] add tests

@@ -8,9 +8,12 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
 
     let mut buffer = Vec::new();
     let mut title = String::new();
+    let mut authors = String::new();
     let mut highlights = Vec::new();
     let mut is_title = false;
+    let mut is_authors = false;
     let mut is_highlight = false;
+    let mut in_publication = false;
 
     loop {
         match reader.read_event_into(&mut buffer) {
@@ -20,8 +23,10 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
 
             Ok(Event::Start(e)) => {
                 match e.name().as_ref() {
-                    b"dc:title"=> is_title = true,  // XXX TODO extract as const
+                    b"dc:title" => is_title = true,  // XXX TODO extract as const
+                    b"dc:creator" => is_authors = if in_publication { true } else { false },
                     b"text" => is_highlight = true,
+                    b"publication" => in_publication = true,
                     _ => (),
                 }
             },
@@ -29,7 +34,9 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
             Ok(Event::End(e)) => {
                 match e.name().as_ref() {
                     b"dc:title" => is_title = false,
+                    b"dc:creator" => is_authors = false,
                     b"text" => is_highlight = false,
+                    b"publication" => in_publication = false,
                     _ => (),
                 }
             }
@@ -41,6 +48,9 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
                 if is_highlight {
                     highlights.push(e.unescape().unwrap().into_owned())
                 }
+                if in_publication && is_authors {
+                    authors = e.unescape().unwrap().into_owned();
+                }
             },
 
             // There are several other `Event`s we do not consider here
@@ -50,7 +60,7 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
         buffer.clear();
     }
 
-    let mut book = Book { title, quotes: Vec::new() };
+    let mut book = Book { title, authors, quotes: Vec::new() };
     book.quotes = highlights.into_iter().map(|text| text).collect();
 
     return book;
@@ -102,6 +112,7 @@ mod test {
         let book = xml_to_struct(reader);
 
         assert_eq!(book.title, "Samouraï");
+        assert_eq!(book.authors, "Fabrice Caro");
         assert_eq!(book.quotes.is_empty(), true);
     }
 
@@ -142,6 +153,7 @@ mod test {
         let book = xml_to_struct(reader);
 
         assert_eq!(book.title, "Architecture Modernization: Socio-technical alignment of software, strategy, and structure");
+        assert_eq!(book.authors, "Nick Tune");
         assert_eq!(book.quotes.len(), 2);
     }
 }

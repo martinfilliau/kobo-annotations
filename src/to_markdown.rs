@@ -8,9 +8,11 @@ pub fn to_markdown(book: &Book, output_path: &String) -> i32 {
 
     md.write(book.title.heading(1)).unwrap();
 
+    md.write(book.authors.paragraph()).unwrap();
+
     let mut quotes_count = 0;
     book.quotes.clone().into_iter().for_each(|quote| {
-        md.write(quote.as_str()).unwrap();
+        md.write(quote.paragraph()).unwrap();
         quotes_count = quotes_count + 1; // XXX TODO book.quotes.len()
     });
 
