@@ -29,4 +29,4 @@ Run `cargo test`.
 - [ ] (optionnally) use ebook to get highlight's context (e.g. nearest sub-title) ?
 - [ ] ability to use as a library as well as a CLI? (i.e. decouple lib and CLI) / [modules](https://doc.rust-lang.org/book/ch07-03-paths-for-referring-to-an-item-in-the-module-tree.html)
 - [ ] version
-- [ ] generalize [result pattern](https://doc.rust-lang.org/std/result/)
+- [x] generalize [result pattern](https://doc.rust-lang.org/std/result/)

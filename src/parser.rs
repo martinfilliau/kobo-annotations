@@ -1,9 +1,14 @@
-use std::io::BufRead;
-use quick_xml::Reader;
-use quick_xml::events::Event;
 use crate::data::Book;
+use quick_xml::events::Event;
+use quick_xml::Reader;
+use std::io::BufRead;
 
-pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
+const DC_TITLE: &'static [u8] = b"dc:title";
+const DC_CREATOR: &'static [u8] = b"dc:creator";
+const TEXT: &'static [u8] = b"text";
+const PUBLICATION: &'static [u8] = b"publication";
+
+pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Result<Book, &'static str> {
     reader.config_mut().trim_text(true);
 
     let mut buffer = Vec::new();
@@ -14,32 +19,32 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
     let mut is_authors = false;
     let mut is_highlight = false;
     let mut in_publication = false;
+    let mut error = false;
 
     loop {
         match reader.read_event_into(&mut buffer) {
-            Err(e) => panic!("Error at position {}: {:?}", reader.error_position(), e),
-            // exits the loop when reaching end of file
+            Err(_e) => {
+                error = true;
+                break;
+            } // XXX TODO more detailed error...
+
             Ok(Event::Eof) => break,
 
-            Ok(Event::Start(e)) => {
-                match e.name().as_ref() {
-                    b"dc:title" => is_title = true,  // XXX TODO extract as const
-                    b"dc:creator" => is_authors = if in_publication { true } else { false },
-                    b"text" => is_highlight = true,
-                    b"publication" => in_publication = true,
-                    _ => (),
-                }
+            Ok(Event::Start(e)) => match e.name().as_ref() {
+                DC_TITLE => is_title = true,
+                DC_CREATOR => is_authors = if in_publication { true } else { false },
+                TEXT => is_highlight = true,
+                PUBLICATION => in_publication = true,
+                _ => (),
             },
 
-            Ok(Event::End(e)) => {
-                match e.name().as_ref() {
-                    b"dc:title" => is_title = false,
-                    b"dc:creator" => is_authors = false,
-                    b"text" => is_highlight = false,
-                    b"publication" => in_publication = false,
-                    _ => (),
-                }
-            }
+            Ok(Event::End(e)) => match e.name().as_ref() {
+                DC_TITLE => is_title = false,
+                DC_CREATOR => is_authors = false,
+                TEXT => is_highlight = false,
+                PUBLICATION => in_publication = false,
+                _ => (),
+            },
 
             Ok(Event::Text(e)) => {
                 if is_title {
@@ -51,7 +56,7 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
                 if in_publication && is_authors {
                     authors = e.unescape().unwrap().into_owned();
                 }
-            },
+            }
 
             // There are several other `Event`s we do not consider here
             _ => (),
@@ -60,10 +65,23 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Book {
         buffer.clear();
     }
 
-    let mut book = Book { title, authors, quotes: Vec::new() };
+    if error {
+        return Err("Error parsing XML");
+    }
+
+    if highlights.iter().count() == 0 && title.chars().count() == 0 && authors.chars().count() == 0
+    {
+        return Err("No highlights, title and authors found");
+    }
+
+    let mut book = Book {
+        title,
+        authors,
+        quotes: Vec::new(),
+    };
     book.quotes = highlights.into_iter().map(|text| text).collect();
 
-    return book;
+    Ok(book)
 }
 
 #[cfg(test)]
@@ -80,10 +98,8 @@ mod test {
                      </tag1>"#;
         let reader = Reader::from_str(xml);
 
-        let book = xml_to_struct(reader);
-
-        // XXX TODO should return a result w/ error
-        assert_eq!(book.title, String::new());
+        let result = xml_to_struct(reader);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -91,10 +107,8 @@ mod test {
         let xml = r#"boo"#;
         let reader = Reader::from_str(xml);
 
-        let book = xml_to_struct(reader);
-
-        // XXX TODO should return a result w/ error
-        assert_eq!(book.title, String::new());
+        let result = xml_to_struct(reader);
+        assert!(result.is_err());
     }
 
     #[test]
@@ -109,7 +123,9 @@ mod test {
             </annotationSet>"#;
         let reader = Reader::from_str(xml);
 
-        let book = xml_to_struct(reader);
+        let result = xml_to_struct(reader);
+        assert!(result.is_ok());
+        let book = result.unwrap();
 
         assert_eq!(book.title, "Samouraï");
         assert_eq!(book.authors, "Fabrice Caro");
@@ -150,7 +166,9 @@ mod test {
     </annotationSet>"#;
         let reader = Reader::from_str(xml);
 
-        let book = xml_to_struct(reader);
+        let result = xml_to_struct(reader);
+        assert!(result.is_ok());
+        let book = result.unwrap();
 
         assert_eq!(book.title, "Architecture Modernization: Socio-technical alignment of software, strategy, and structure");
         assert_eq!(book.authors, "Nick Tune");
