@@ -1,4 +1,4 @@
-use crate::data::Book;
+use crate::domain::book::Book;
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use std::io::BufRead;

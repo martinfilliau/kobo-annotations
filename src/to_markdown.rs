@@ -1,4 +1,4 @@
-use crate::data::Book;
+use crate::domain::book::Book;
 use markdown_gen::markdown::{AsMarkdown, Markdown};
 use std::fs::File;
 
