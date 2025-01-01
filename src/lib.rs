@@ -1,3 +1,4 @@
+pub mod components;
 pub mod domain;
 pub mod from_epub;
 pub mod from_xml;

@@ -1,4 +1,4 @@
-use crate::domain::book::Book;
+use crate::domain::book::{Book, Quote};
 use quick_xml::events::Event;
 use quick_xml::Reader;
 use std::io::BufRead;
@@ -79,7 +79,10 @@ pub fn xml_to_struct<R: BufRead>(mut reader: Reader<R>) -> Result<Book, &'static
         authors,
         quotes: Vec::new(),
     };
-    book.quotes = highlights.into_iter().map(|text| text).collect();
+    book.quotes = highlights
+        .into_iter()
+        .map(|text| Quote { quote: text })
+        .collect();
 
     Ok(book)
 }
