@@ -7,6 +7,14 @@ fn main() {
 
     println!("Importing {}", path);
 
+    //let result = from_epub(path);
+    //if result.is_ok() {
+    //    let chapters = result.ok().unwrap();
+    //    for chapter in chapters {
+    //        println!("{}", chapter);
+    //    }
+    //}
+
     let quotes_path = format!("{}.md", path);
 
     let xml = get_xml_stream(path);

@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 markdown-gen = "1.2.1"
 quick-xml = "0.37.1"
+epub = "2.1.2"
