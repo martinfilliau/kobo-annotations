@@ -737,6 +737,7 @@ version = "0.2.0"
 dependencies = [
  "console_error_panic_hook",
  "epub",
+ "js-sys",
  "leptos",
  "markdown-gen",
  "quick-xml",
