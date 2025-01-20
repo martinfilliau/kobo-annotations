@@ -1,8 +1,14 @@
+use kobo_annotations::components::App::App;
 use kobo_annotations::from_xml::get_xml_stream;
 use kobo_annotations::parser::xml_to_struct;
 use kobo_annotations::to_markdown::to_markdown;
+use leptos::prelude::*;
 
 fn main() {
+    console_error_panic_hook::set_once();
+    mount_to_body(App);
+    return;
+
     let path = std::env::args().nth(1).expect("no file given");
 
     println!("Importing {}", path);

@@ -7,3 +7,8 @@ edition = "2021"
 markdown-gen = "1.2.1"
 quick-xml = "0.37.1"
 epub = "2.1.2"
+leptos = { version = "0.7.2", features = ["csr"] }
+console_error_panic_hook = "0.1.7"
+web-sys = { version = "0.3.76", features = ["FileList", "File"] }
+wasm-bindgen = "0.2.99"
+js-sys = "0.3.76"

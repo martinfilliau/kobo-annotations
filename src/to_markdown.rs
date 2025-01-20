@@ -13,7 +13,7 @@ pub fn to_markdown(book: &Book, output_path: &String) -> Result<usize, String> {
     md.write("Annotations".heading(2)).unwrap();
 
     book.quotes.clone().into_iter().for_each(|quote| {
-        let formatted = format!(" {quote}");
+        let formatted = format!(" {}", quote.quote);
         md.write(formatted.quote()).unwrap();
     });
 
